@@ -22,7 +22,7 @@ export const Route = createFileRoute("/assistant")({
       },
     ],
   }),
-  component: Assistant;
+  component: Assistant,
 });
 
 function Assistant() {
