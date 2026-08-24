@@ -11,6 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FindRouteImport } from './routes/find'
+import { Route as MapRouteImport } from './routes/map'
+import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as FacilityFacilityIdRouteImport } from './routes/facility.$facilityId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +27,26 @@ const FindRoute = FindRouteImport.update({
   path: '/find',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MapRoute = MapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FacilityFacilityIdRoute = FacilityFacilityIdRouteImport.update({
   id: '/facility/$facilityId',
   path: '/facility/$facilityId',
@@ -32,30 +56,68 @@ const FacilityFacilityIdRoute = FacilityFacilityIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/find': typeof FindRoute
+  '/map': typeof MapRoute
+  '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
+  '/resources': typeof ResourcesRoute
   '/facility/$facilityId': typeof FacilityFacilityIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/find': typeof FindRoute
+  '/map': typeof MapRoute
+  '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
+  '/resources': typeof ResourcesRoute
   '/facility/$facilityId': typeof FacilityFacilityIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/find': typeof FindRoute
+  '/map': typeof MapRoute
+  '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
+  '/resources': typeof ResourcesRoute
   '/facility/$facilityId': typeof FacilityFacilityIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/find' | '/facility/$facilityId'
+  fullPaths:
+    | '/'
+    | '/find'
+    | '/map'
+    | '/messages'
+    | '/profile'
+    | '/resources'
+    | '/facility/$facilityId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/find' | '/facility/$facilityId'
-  id: '__root__' | '/' | '/find' | '/facility/$facilityId'
+  to:
+    | '/'
+    | '/find'
+    | '/map'
+    | '/messages'
+    | '/profile'
+    | '/resources'
+    | '/facility/$facilityId'
+  id:
+    | '__root__'
+    | '/'
+    | '/find'
+    | '/map'
+    | '/messages'
+    | '/profile'
+    | '/resources'
+    | '/facility/$facilityId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FindRoute: typeof FindRoute
+  MapRoute: typeof MapRoute
+  MessagesRoute: typeof MessagesRoute
+  ProfileRoute: typeof ProfileRoute
+  ResourcesRoute: typeof ResourcesRoute
   FacilityFacilityIdRoute: typeof FacilityFacilityIdRoute
 }
 
@@ -75,6 +137,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FindRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/facility/$facilityId': {
       id: '/facility/$facilityId'
       path: '/facility/$facilityId'
@@ -88,6 +178,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FindRoute: FindRoute,
+  MapRoute: MapRoute,
+  MessagesRoute: MessagesRoute,
+  ProfileRoute: ProfileRoute,
+  ResourcesRoute: ResourcesRoute,
   FacilityFacilityIdRoute: FacilityFacilityIdRoute,
 }
 export const routeTree = rootRouteImport
