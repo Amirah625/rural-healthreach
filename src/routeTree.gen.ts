@@ -10,33 +10,154 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AssistantRouteImport } from './routes/assistant'
+import { Route as EmergencyRouteImport } from './routes/emergency'
+import { Route as FindRouteImport } from './routes/find'
+import { Route as MapRouteImport } from './routes/map'
+import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as UssdRouteImport } from './routes/ussd'
+import { Route as FacilityFacilityIdRouteImport } from './routes/facility.$facilityId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AssistantRoute = AssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmergencyRoute = EmergencyRouteImport.update({
+  id: '/emergency',
+  path: '/emergency',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FindRoute = FindRouteImport.update({
+  id: '/find',
+  path: '/find',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapRoute = MapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UssdRoute = UssdRouteImport.update({
+  id: '/ussd',
+  path: '/ussd',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FacilityFacilityIdRoute = FacilityFacilityIdRouteImport.update({
+  id: '/facility/$facilityId',
+  path: '/facility/$facilityId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/assistant': typeof AssistantRoute
+  '/emergency': typeof EmergencyRoute
+  '/find': typeof FindRoute
+  '/map': typeof MapRoute
+  '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
+  '/resources': typeof ResourcesRoute
+  '/ussd': typeof UssdRoute
+  '/facility/$facilityId': typeof FacilityFacilityIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/assistant': typeof AssistantRoute
+  '/emergency': typeof EmergencyRoute
+  '/find': typeof FindRoute
+  '/map': typeof MapRoute
+  '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
+  '/resources': typeof ResourcesRoute
+  '/ussd': typeof UssdRoute
+  '/facility/$facilityId': typeof FacilityFacilityIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/assistant': typeof AssistantRoute
+  '/emergency': typeof EmergencyRoute
+  '/find': typeof FindRoute
+  '/map': typeof MapRoute
+  '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
+  '/resources': typeof ResourcesRoute
+  '/ussd': typeof UssdRoute
+  '/facility/$facilityId': typeof FacilityFacilityIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/assistant'
+    | '/emergency'
+    | '/find'
+    | '/map'
+    | '/messages'
+    | '/profile'
+    | '/resources'
+    | '/ussd'
+    | '/facility/$facilityId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/assistant'
+    | '/emergency'
+    | '/find'
+    | '/map'
+    | '/messages'
+    | '/profile'
+    | '/resources'
+    | '/ussd'
+    | '/facility/$facilityId'
+  id:
+    | '__root__'
+    | '/'
+    | '/assistant'
+    | '/emergency'
+    | '/find'
+    | '/map'
+    | '/messages'
+    | '/profile'
+    | '/resources'
+    | '/ussd'
+    | '/facility/$facilityId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AssistantRoute: typeof AssistantRoute
+  EmergencyRoute: typeof EmergencyRoute
+  FindRoute: typeof FindRoute
+  MapRoute: typeof MapRoute
+  MessagesRoute: typeof MessagesRoute
+  ProfileRoute: typeof ProfileRoute
+  ResourcesRoute: typeof ResourcesRoute
+  UssdRoute: typeof UssdRoute
+  FacilityFacilityIdRoute: typeof FacilityFacilityIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +169,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/assistant': {
+      id: '/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/emergency': {
+      id: '/emergency'
+      path: '/emergency'
+      fullPath: '/emergency'
+      preLoaderRoute: typeof EmergencyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/find': {
+      id: '/find'
+      path: '/find'
+      fullPath: '/find'
+      preLoaderRoute: typeof FindRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ussd': {
+      id: '/ussd'
+      path: '/ussd'
+      fullPath: '/ussd'
+      preLoaderRoute: typeof UssdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/facility/$facilityId': {
+      id: '/facility/$facilityId'
+      path: '/facility/$facilityId'
+      fullPath: '/facility/$facilityId'
+      preLoaderRoute: typeof FacilityFacilityIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AssistantRoute: AssistantRoute,
+  EmergencyRoute: EmergencyRoute,
+  FindRoute: FindRoute,
+  MapRoute: MapRoute,
+  MessagesRoute: MessagesRoute,
+  ProfileRoute: ProfileRoute,
+  ResourcesRoute: ResourcesRoute,
+  UssdRoute: UssdRoute,
+  FacilityFacilityIdRoute: FacilityFacilityIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
