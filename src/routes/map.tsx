@@ -7,9 +7,10 @@ import { DEMO_DATA_NOTE, facilities } from "@/data/facilities";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/map")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    facility: typeof search.facility === "string" ? search.facility : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { facility?: string } =>
+    typeof search["facility"] === "string"
+      ? { facility: search["facility"] }
+      : {},
   head: () => ({
     meta: [
       { title: "Map of Nearby Facilities | RuralReach Health" },
@@ -46,9 +47,10 @@ const markerPositions = [
 
 function MapScreen() {
   const { facility: initial } = Route.useSearch();
-  const [selectedId, setSelectedId] = useState(initial ?? facilities[0].id);
+  const firstFacility = facilities[0]!;
+  const [selectedId, setSelectedId] = useState(initial ?? firstFacility.id);
   const selected =
-    facilities.find((f) => f.id === selectedId) ?? facilities[0];
+    facilities.find((f) => f.id === selectedId) ?? firstFacility;
 
   return (
     <AppShell title="Map" backTo="/find">
