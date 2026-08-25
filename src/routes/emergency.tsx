@@ -26,7 +26,7 @@ export const Route = createFileRoute("/emergency")({
 function Emergency() {
   const nearestEmergency = facilities
     .filter((f) => f.services.includes("Emergency care"))
-    .sort((a, b) => a.distanceKm - b.distanceKm)[0];
+    .sort((a, b) => a.distanceKm - b.distanceKm)[0]!;
 
   return (
     <AppShell title="Emergency / Help" tone="emergency">
