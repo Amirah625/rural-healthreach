@@ -76,15 +76,14 @@ export function formatDistance(km?: number): string | undefined {
 }
 
 export function directionsUrl(place: HealthPlace): string {
-  const destination = encodeURIComponent(
-    place.address ? `${place.name}, ${place.address}` : place.name,
-  );
-  return `https://www.google.com/maps/dir/?api=1&destination=${destination}&destination_place_id=`.replace(
-    /&destination_place_id=$/,
-    place.source === "live" && place.id.startsWith("live_")
-      ? `&destination_place_id=${encodeURIComponent(place.id.slice(5))}`
-      : `&destination=${place.latitude},${place.longitude}`,
-  );
+  const params = new URLSearchParams({
+    api: "1",
+    destination: `${place.latitude},${place.longitude}`,
+  });
+  if (place.source === "live" && place.id.startsWith("live_")) {
+    params.set("destination_place_id", place.id.slice(5));
+  }
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
 }
 
 export function telHref(phone: string): string {
