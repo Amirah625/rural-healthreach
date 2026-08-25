@@ -7,9 +7,10 @@ import { DEMO_DATA_NOTE, facilities } from "@/data/facilities";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/map")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    facility: typeof search.facility === "string" ? search.facility : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>) =>
+    typeof search["facility"] === "string"
+      ? { facility: search["facility"] }
+      : {},
   head: () => ({
     meta: [
       { title: "Map of Nearby Facilities | RuralReach Health" },
