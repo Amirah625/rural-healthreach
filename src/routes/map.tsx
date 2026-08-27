@@ -1,9 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Info, MapPin, Navigation, Search, SlidersHorizontal } from "lucide-react";
-import { useState } from "react";
+import { Info, MapPin, Navigation, Crosshair } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import { AppShell } from "@/components/layout/AppShell";
-import { DEMO_DATA_NOTE, facilities } from "@/data/facilities";
+import { LocationBar } from "@/components/location/LocationBar";
+import {
+  DEMO_MODE_NOTE,
+  MAP_DATA_NOTE,
+  directionsUrl,
+  formatDistance,
+  type HealthPlace,
+} from "@/lib/health-places";
+import { useLocation } from "@/lib/location/LocationProvider";
+import { useFacilitySearch } from "@/lib/useFacilities";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/map")({
@@ -17,7 +26,7 @@ export const Route = createFileRoute("/map")({
       {
         name: "description",
         content:
-          "See healthcare facilities around Oye Ekiti on a simple map view and get directions.",
+          "See healthcare facilities around your location on a simple map view and open directions.",
       },
       {
         property: "og:title",
@@ -27,51 +36,60 @@ export const Route = createFileRoute("/map")({
         property: "og:description",
         content: "Healthcare facilities around you on a simple map view.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: MapScreen,
 });
 
-// Mock marker positions (percentages) — replaced by real coordinates once a
-// map provider is connected.
-const markerPositions = [
-  { top: "22%", left: "28%" },
-  { top: "34%", left: "68%" },
-  { top: "52%", left: "18%" },
-  { top: "58%", left: "52%" },
-  { top: "70%", left: "76%" },
-  { top: "44%", left: "42%" },
-  { top: "80%", left: "34%" },
-  { top: "16%", left: "58%" },
-];
+interface Positioned {
+  place: HealthPlace;
+  top: string;
+  left: string;
+}
+
+function layout(
+  places: HealthPlace[],
+  origin: { latitude: number; longitude: number } | null,
+): Positioned[] {
+  if (places.length === 0) return [];
+  const lats = places.map((p) => p.latitude);
+  const lngs = places.map((p) => p.longitude);
+  if (origin) {
+    lats.push(origin.latitude);
+    lngs.push(origin.longitude);
+  }
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLng = Math.min(...lngs);
+  const maxLng = Math.max(...lngs);
+  const spanLat = Math.max(maxLat - minLat, 0.0025);
+  const spanLng = Math.max(maxLng - minLng, 0.0025);
+  return places.map((place) => ({
+    place,
+    top: `${12 + ((maxLat - place.latitude) / spanLat) * 74}%`,
+    left: `${10 + ((place.longitude - minLng) / spanLng) * 78}%`,
+  }));
+}
 
 function MapScreen() {
   const { facility: initial } = Route.useSearch();
-  const firstFacility = facilities[0]!;
-  const [selectedId, setSelectedId] = useState(initial ?? firstFacility.id);
+  const { location } = useLocation();
+  const results = useFacilitySearch("all", "");
+  const places = useMemo(
+    () => (results.data?.places ?? []).slice(0, 10),
+    [results.data],
+  );
+  const [selectedId, setSelectedId] = useState<string | undefined>(initial);
   const selected =
-    facilities.find((f) => f.id === selectedId) ?? firstFacility;
+    places.find((p) => p.id === (selectedId ?? initial)) ?? places[0];
+
+  const positioned = useMemo(() => layout(places, location), [places, location]);
 
   return (
     <AppShell title="Map" backTo="/find">
-      <div className="card-surface flex items-center gap-2 px-4 py-3">
-        <Search className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />
-        <label className="sr-only" htmlFor="map-search">
-          Search location
-        </label>
-        <input
-          id="map-search"
-          placeholder="Search location..."
-          className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground"
-        />
-        <Link
-          to="/find"
-          aria-label="Open facility filters"
-          className="tap grid h-9 w-9 shrink-0 place-items-center rounded-full bg-secondary text-secondary-foreground"
-        >
-          <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
-        </Link>
-      </div>
+      <LocationBar compact />
 
       <div className="rise relative mt-3 h-[340px] overflow-hidden rounded-3xl border border-border bg-accent/60 shadow-soft">
         <div
@@ -83,23 +101,26 @@ function MapScreen() {
             backgroundSize: "44px 44px",
           }}
         />
-        <div
-          aria-hidden="true"
-          className="absolute left-1/2 top-0 h-full w-8 -translate-x-1/2 rotate-6 bg-highlight/40"
-        />
+        {location && (
+          <span
+            className="absolute left-1/2 top-1/2 grid h-9 w-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-leaf text-leaf-foreground shadow-lift"
+            aria-hidden="true"
+          >
+            <Crosshair className="h-4 w-4" />
+          </span>
+        )}
         <ul className="absolute inset-0">
-          {facilities.map((f, i) => {
-            const pos = markerPositions[i % markerPositions.length];
-            const active = f.id === selected.id;
+          {positioned.map(({ place, top, left }) => {
+            const active = place.id === selected?.id;
             return (
-              <li key={f.id} className="absolute" style={pos}>
+              <li key={place.id} className="absolute" style={{ top, left }}>
                 <button
                   type="button"
-                  onClick={() => setSelectedId(f.id)}
+                  onClick={() => setSelectedId(place.id)}
                   aria-pressed={active}
-                  aria-label={`Select ${f.name}`}
+                  aria-label={`Select ${place.name}`}
                   className={cn(
-                    "tap grid h-11 w-11 place-items-center rounded-full shadow-lift",
+                    "tap grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full shadow-lift",
                     active
                       ? "bg-primary text-primary-foreground ring-4 ring-highlight"
                       : "bg-card text-primary",
@@ -111,38 +132,57 @@ function MapScreen() {
             );
           })}
         </ul>
+        {places.length === 0 && (
+          <p className="absolute inset-x-6 top-1/2 -translate-y-1/2 rounded-2xl bg-card/95 p-4 text-center text-sm font-semibold text-muted-foreground">
+            {results.isPending
+              ? "Finding facilities around you…"
+              : "Choose a location to see facilities nearby."}
+          </p>
+        )}
         <p className="absolute bottom-2 left-1/2 w-[92%] -translate-x-1/2 rounded-xl bg-card/90 px-3 py-1.5 text-center text-[0.7rem] text-muted-foreground">
-          Illustrative map — live map and navigation will be connected in a
-          later version.
+          Simplified map view — tap a marker, then open directions.
         </p>
       </div>
 
-      <section
-        key={selected.id}
-        className="card-surface rise mt-3 flex items-center gap-3 p-4"
-      >
-        <div className="min-w-0 flex-1">
-          <h2 className="truncate text-base font-extrabold">{selected.name}</h2>
-          <p className="text-sm text-muted-foreground">
-            {selected.distanceKm} km away
-          </p>
-          <p className="text-sm font-semibold text-leaf">
-            {selected.openingHours}
-          </p>
-        </div>
-        <Link
-          to="/facility/$facilityId"
-          params={{ facilityId: selected.id }}
-          className="tap flex shrink-0 items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-extrabold text-primary-foreground"
+      {selected && (
+        <section
+          key={selected.id}
+          className="card-surface rise mt-3 flex items-center gap-3 p-4"
         >
-          <Navigation className="h-4 w-4" aria-hidden="true" />
-          Directions
-        </Link>
-      </section>
+          <Link
+            to="/facility/$facilityId"
+            params={{ facilityId: selected.id }}
+            className="tap min-w-0 flex-1 rounded-lg"
+          >
+            <span className="block truncate text-base font-extrabold">
+              {selected.name}
+            </span>
+            <span className="block text-sm text-muted-foreground">
+              {[formatDistance(selected.distanceKm), selected.typeLabel]
+                .filter(Boolean)
+                .join(" · ")}
+            </span>
+            {selected.openNow !== undefined && (
+              <span className="block text-sm font-semibold text-leaf">
+                {selected.openNow ? "Open now" : "Closed now"}
+              </span>
+            )}
+          </Link>
+          <a
+            href={directionsUrl(selected)}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="tap flex shrink-0 items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-extrabold text-primary-foreground"
+          >
+            <Navigation className="h-4 w-4" aria-hidden="true" />
+            Directions
+          </a>
+        </section>
+      )}
 
       <p className="mt-4 flex items-start gap-2 rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
         <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-        {DEMO_DATA_NOTE}
+        {results.data?.live ? MAP_DATA_NOTE : DEMO_MODE_NOTE}
       </p>
     </AppShell>
   );
