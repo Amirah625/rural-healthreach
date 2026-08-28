@@ -1,10 +1,10 @@
 /**
  * Shared (browser-safe) healthcare place model.
- * The same shape is produced by live map-provider results and by demo data,
- * but `source` always says which one it is — the two are never mixed silently.
+ * Every place comes from the live map-data provider — the app never invents
+ * facility information. Missing fields stay undefined and the UI says so.
  */
 
-export type PlaceSource = "live" | "demo";
+export type PlaceSource = "live";
 
 export type HealthCategory =
   | "all"
@@ -15,7 +15,7 @@ export type HealthCategory =
   | "maternity";
 
 export interface HealthPlace {
-  /** Prefixed id: "live_<providerId>" or "demo_<slug>" */
+  /** Prefixed id: "live_<providerId>" */
   id: string;
   source: PlaceSource;
   name: string;
@@ -50,10 +50,11 @@ export const CATEGORIES: CategoryConfig[] = [
   { id: "maternity", label: "Maternity", term: "maternity clinic" },
 ];
 
-export const MAP_DATA_NOTE = "Location information provided by map data";
+export const MAP_DATA_NOTE =
+  "Facility information comes from live map data. Fields that are not published by the facility are shown as unavailable.";
 
-export const DEMO_MODE_NOTE =
-  "Demo Mode — these are illustrative facilities, not live listings.";
+export const NOT_CONFIGURED_NOTE =
+  "Healthcare search is not configured yet. The map data provider needs to be connected before facilities can be shown.";
 
 export function distanceKm(
   from: { latitude: number; longitude: number },
@@ -80,7 +81,7 @@ export function directionsUrl(place: HealthPlace): string {
     api: "1",
     destination: `${place.latitude},${place.longitude}`,
   });
-  if (place.source === "live" && place.id.startsWith("live_")) {
+  if (place.id.startsWith("live_")) {
     params.set("destination_place_id", place.id.slice(5));
   }
   return `https://www.google.com/maps/dir/?${params.toString()}`;

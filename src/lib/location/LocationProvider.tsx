@@ -8,11 +8,10 @@ import {
   type ReactNode,
 } from "react";
 
-import { DEMO_LOCATIONS, nearestDemoLocation } from "@/data/demo-places";
 import { DEFAULT_COUNTRY_CODE } from "@/lib/countries";
 import { lookupCoordinates } from "@/lib/places.functions";
 
-export type LocationMode = "device" | "manual" | "demo";
+export type LocationMode = "device" | "manual";
 
 export type LocationStatus =
   | "idle"
@@ -27,8 +26,6 @@ export interface AppLocation {
   latitude: number;
   longitude: number;
   mode: LocationMode;
-  /** Demo dataset key when mode === "demo" */
-  demoId?: string;
 }
 
 interface LocationContextValue {
@@ -37,25 +34,11 @@ interface LocationContextValue {
   error: string | null;
   detect: () => void;
   setLocation: (next: AppLocation) => void;
-  useDemoLocation: (demoId: string) => void;
 }
 
-const STORAGE_KEY = "ruralreach.location.v2";
+const STORAGE_KEY = "ruralreach.location.v3";
 
 const LocationContext = createContext<LocationContextValue | null>(null);
-
-function demoLocation(demoId: string): AppLocation {
-  const demo =
-    DEMO_LOCATIONS.find((d) => d.id === demoId) ?? DEMO_LOCATIONS[0]!;
-  return {
-    label: demo.label,
-    countryCode: demo.countryCode,
-    latitude: demo.latitude,
-    longitude: demo.longitude,
-    mode: "demo",
-    demoId: demo.id,
-  };
-}
 
 export function LocationProvider({ children }: { children: ReactNode }) {
   const [location, setLocationState] = useState<AppLocation | null>(null);
@@ -134,11 +117,6 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     );
   }, [persist]);
 
-  const useDemoLocation = useCallback(
-    (demoId: string) => persist(demoLocation(demoId)),
-    [persist],
-  );
-
   const value = useMemo<LocationContextValue>(
     () => ({
       location,
@@ -146,9 +124,8 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       error,
       detect,
       setLocation: persist,
-      useDemoLocation,
     }),
-    [location, status, error, detect, persist, useDemoLocation],
+    [location, status, error, detect, persist],
   );
 
   return (
@@ -163,11 +140,4 @@ export function useLocation(): LocationContextValue {
   if (!ctx)
     throw new Error("useLocation must be used inside <LocationProvider>");
   return ctx;
-}
-
-/** Demo dataset key to use for a location (falls back to the nearest demo area). */
-export function demoKeyFor(location: AppLocation | null): string {
-  if (!location) return DEMO_LOCATIONS[0]!.id;
-  if (location.demoId) return location.demoId;
-  return nearestDemoLocation(location.latitude, location.longitude).id;
 }
