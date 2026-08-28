@@ -17,6 +17,16 @@ const menuLinks = [
   { to: "/emergency", label: "Emergency / Help" },
 ] as const;
 
+/** Primary links shown inline in the desktop header */
+const desktopLinks = [
+  { to: "/find", label: "Find care" },
+  { to: "/map", label: "Map" },
+  { to: "/assistant", label: "Health Assistant" },
+  { to: "/resources", label: "Health info" },
+  { to: "/ussd", label: "USSD / SMS" },
+  { to: "/profile", label: "Profile" },
+] as const;
+
 interface AppShellProps {
   children: ReactNode;
   /** Simple page title header instead of the branded home header */
@@ -24,7 +34,15 @@ interface AppShellProps {
   backTo?: string;
   action?: ReactNode;
   tone?: "default" | "emergency";
+  /** Content max width on large screens */
+  width?: "prose" | "wide" | "full";
 }
+
+const widthClass = {
+  prose: "max-w-3xl",
+  wide: "max-w-6xl",
+  full: "max-w-[1600px]",
+} as const;
 
 export function AppShell({
   children,
@@ -32,18 +50,23 @@ export function AppShell({
   backTo,
   action,
   tone = "default",
+  width = "wide",
 }: AppShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const container = `mx-auto w-full ${widthClass[width]} px-4 sm:px-6 lg:px-8`;
 
   return (
-    <div className="min-h-dvh bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24 md:pb-10">
       <header
         className={cn(
           "sticky top-0 z-30 border-b border-border/70 backdrop-blur",
           tone === "emergency" ? "bg-destructive/10" : "bg-background/90",
         )}
       >
-        <div className="mx-auto grid max-w-3xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
+        {/* Mobile / tablet header */}
+        <div
+          className={`${container} grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 py-3 md:hidden`}
+        >
           {title ? (
             <>
               <Link
@@ -83,10 +106,39 @@ export function AppShell({
             </>
           )}
         </div>
+
+        {/* Desktop header */}
+        <div
+          className={`${container} hidden items-center gap-6 py-3 md:flex`}
+        >
+          <Link to="/" aria-label="RuralReach Health home" className="shrink-0">
+            <Logo />
+          </Link>
+          <nav
+            aria-label="Primary"
+            className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto"
+          >
+            {desktopLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="tap shrink-0 rounded-full px-3 py-2 text-sm font-bold text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground data-[status=active]:bg-secondary data-[status=active]:text-primary"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+          <Link
+            to="/emergency"
+            className="tap shrink-0 rounded-full bg-destructive px-4 py-2 text-sm font-extrabold text-destructive-foreground"
+          >
+            Emergency
+          </Link>
+        </div>
       </header>
 
       {menuOpen && (
-        <div className="fixed inset-0 z-50">
+        <div className="fixed inset-0 z-50 md:hidden">
           <button
             type="button"
             aria-label="Close menu"
@@ -124,7 +176,14 @@ export function AppShell({
         </div>
       )}
 
-      <main className="mx-auto max-w-3xl px-4 pt-4">{children}</main>
+      <main className={`${container} pt-4 md:pt-8`}>
+        {title && (
+          <h1 className="mb-5 hidden font-display text-3xl font-extrabold md:block lg:text-4xl">
+            {title}
+          </h1>
+        )}
+        {children}
+      </main>
 
       <BottomNav />
     </div>
