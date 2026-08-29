@@ -4,6 +4,8 @@
  * facility information. Missing fields stay undefined and the UI says so.
  */
 
+import type { HealthcareNeedId } from "@/lib/healthcare-needs";
+
 export type PlaceSource = "live";
 
 export type HealthCategory =
@@ -32,6 +34,8 @@ export interface HealthPlace {
   website?: string;
   rating?: number;
   ratingCount?: number;
+  /** Services explicitly represented by the provider's place types. */
+  verifiedServices?: HealthcareNeedId[];
 }
 
 export interface CategoryConfig {
