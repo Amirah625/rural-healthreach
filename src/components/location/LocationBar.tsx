@@ -30,11 +30,6 @@ export function LocationBar({ compact = false }: { compact?: boolean }) {
             </span>
           )}
           <span className="block truncate text-sm font-bold">{label}</span>
-          {location?.mode === "demo" && (
-            <span className="mt-0.5 inline-block rounded-full bg-highlight/40 px-2 py-0.5 text-[0.65rem] font-bold text-highlight-foreground">
-              Demo Mode
-            </span>
-          )}
         </span>
         <button
           type="button"

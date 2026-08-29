@@ -13,9 +13,7 @@ import {
 } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
-import { findDemoPlace } from "@/data/demo-places";
 import {
-  DEMO_MODE_NOTE,
   MAP_DATA_NOTE,
   directionsUrl,
   distanceKm,
@@ -50,11 +48,10 @@ export const Route = createFileRoute("/facility/$facilityId")({
 function FacilityDetail() {
   const { facilityId } = Route.useParams();
   const { location } = useLocation();
-  const demo = findDemoPlace(facilityId);
 
   const live = useQuery<HealthPlace | null>({
     queryKey: ["facility", facilityId],
-    enabled: !demo && facilityId.startsWith("live_"),
+    enabled: facilityId.startsWith("live_"),
     staleTime: 300_000,
     queryFn: async () => {
       const res = await getFacilityDetails({
@@ -64,14 +61,14 @@ function FacilityDetail() {
     },
   });
 
-  const place = demo ?? live.data ?? null;
+  const place = live.data ?? null;
 
   if (!place) {
     return (
       <AppShell title="Facility details" backTo="/find">
         <div className="card-surface rise p-6 text-center">
           <p className="text-sm font-bold">
-            {live.isPending && !demo
+            {live.isPending
               ? "Loading facility…"
               : "We couldn't load this facility."}
           </p>
@@ -210,7 +207,7 @@ function FacilityDetail() {
 
       <p className="mt-5 flex items-start gap-2 rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
         <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-        {place.source === "demo" ? DEMO_MODE_NOTE : MAP_DATA_NOTE}
+        {MAP_DATA_NOTE}
       </p>
     </AppShell>
   );

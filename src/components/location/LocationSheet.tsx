@@ -1,7 +1,6 @@
 import { Crosshair, Loader2, MapPin, Search, X } from "lucide-react";
 import { useState } from "react";
 
-import { DEMO_LOCATIONS } from "@/data/demo-places";
 import { COUNTRIES, getCountryOrDefault } from "@/lib/countries";
 import { useLocation } from "@/lib/location/LocationProvider";
 import { searchLocations } from "@/lib/places.functions";
@@ -12,8 +11,7 @@ interface LocationSheetProps {
 }
 
 export function LocationSheet({ open, onClose }: LocationSheetProps) {
-  const { location, status, error, detect, setLocation, useDemoLocation } =
-    useLocation();
+  const { location, status, error, detect, setLocation } = useLocation();
   const [countryCode, setCountryCode] = useState(
     location?.countryCode ?? COUNTRIES[0]!.code,
   );
@@ -39,7 +37,7 @@ export function LocationSheet({ open, onClose }: LocationSheetProps) {
       });
       if (!res.live) {
         setSearchError(
-          "Location search needs map data to be configured. Pick a town below or use a demo location.",
+          "Location search is not configured yet. Try again later or use your current location.",
         );
         setResults([]);
       } else if (res.results.length === 0) {
@@ -210,26 +208,6 @@ export function LocationSheet({ open, onClose }: LocationSheetProps) {
           ))}
         </ul>
 
-        <h3 className="mt-5 text-sm font-extrabold">Demo locations</h3>
-        <p className="text-xs text-muted-foreground">
-          Illustrative data for demonstrations — clearly labelled as Demo Mode.
-        </p>
-        <ul className="mt-2 flex flex-wrap gap-2">
-          {DEMO_LOCATIONS.map((d) => (
-            <li key={d.id}>
-              <button
-                type="button"
-                onClick={() => {
-                  useDemoLocation(d.id);
-                  onClose();
-                }}
-                className="tap rounded-full border border-highlight bg-highlight/25 px-4 py-2 text-sm font-bold text-highlight-foreground"
-              >
-                {d.label}
-              </button>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );
