@@ -5,6 +5,10 @@
  */
 import type { HealthCategory, HealthPlace } from "@/lib/health-places";
 import { CATEGORIES } from "@/lib/health-places";
+import {
+  getHealthcareNeed,
+  type HealthcareNeedId,
+} from "@/lib/healthcare-needs";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
@@ -72,6 +76,31 @@ interface RawPlace {
   regularOpeningHours?: { weekdayDescriptions?: string[] };
 }
 
+function verifiedServicesFromTypes(
+  types: string[],
+): HealthcareNeedId[] {
+  const services = new Set<HealthcareNeedId>();
+  const exactTypeServices: Record<string, HealthcareNeedId> = {
+    doctor: "general_consultation",
+    medical_clinic: "general_consultation",
+    medical_center: "general_consultation",
+    medical_lab: "laboratory_tests",
+    maternity_hospital: "maternity_care",
+    obstetrician_gynecologist: "maternity_care",
+    pediatrician: "child_healthcare",
+    childrens_hospital: "child_healthcare",
+    pharmacy: "pharmacy",
+    radiologist: "imaging",
+    imaging_center: "imaging",
+    emergency_room: "emergency_care",
+  };
+  for (const type of types) {
+    const service = exactTypeServices[type];
+    if (service) services.add(service);
+  }
+  return [...services];
+}
+
 function categoryOf(raw: RawPlace): HealthPlace["category"] {
   const types = raw.types ?? [];
   if (types.includes("pharmacy") || types.includes("drugstore"))
@@ -97,6 +126,8 @@ function toHealthPlace(raw: RawPlace): HealthPlace | null {
     latitude: raw.location.latitude,
     longitude: raw.location.longitude,
   };
+  const verifiedServices = verifiedServicesFromTypes(raw.types ?? []);
+  if (verifiedServices.length > 0) place.verifiedServices = verifiedServices;
   if (raw.formattedAddress) place.address = raw.formattedAddress;
   if (typeof raw.rating === "number") place.rating = raw.rating;
   if (typeof raw.userRatingCount === "number")
@@ -117,15 +148,18 @@ export async function searchLivePlaces(input: {
   category: HealthCategory;
   query?: string;
   radiusMeters?: number;
+  need?: HealthcareNeedId;
 }): Promise<HealthPlace[]> {
   const creds = getCredentials();
   if (!creds) return [];
   const term =
     CATEGORIES.find((c) => c.id === input.category)?.term ??
     "healthcare facility";
+  const need = getHealthcareNeed(input.need);
+  const serviceTerm = need?.searchTerm ?? term;
   const textQuery = input.query?.trim()
-    ? `${input.query.trim()} ${input.category === "all" ? "healthcare" : term}`
-    : term;
+    ? `${input.query.trim()} ${serviceTerm}`
+    : serviceTerm;
 
   const response = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
     method: "POST",
@@ -148,9 +182,13 @@ export async function searchLivePlaces(input: {
 
   if (!response.ok) await readError(response, "Places text search");
   const data = (await response.json()) as { places?: RawPlace[] };
-  return (data.places ?? [])
+  const places = (data.places ?? [])
     .map(toHealthPlace)
     .filter((p): p is HealthPlace => p !== null);
+  if (!input.need) return places;
+  return places.filter((place) =>
+    place.verifiedServices?.includes(input.need as HealthcareNeedId),
+  );
 }
 
 export async function fetchLivePlaceDetails(

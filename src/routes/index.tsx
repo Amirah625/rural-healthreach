@@ -11,6 +11,7 @@ import {
 
 import hero from "@/assets/hero-rural-health.jpg";
 import { AppShell } from "@/components/layout/AppShell";
+import { HealthcareNeedGrid } from "@/components/facilities/HealthcareNeedGrid";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -80,7 +81,19 @@ function Home() {
       </section>
 
       <section className="mt-7">
-        <h2 className="text-lg font-extrabold">What do you need today?</h2>
+        <h2 className="text-lg font-extrabold">
+          What healthcare do you need today?
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Find nearby care by service, using verified provider information.
+        </p>
+        <div className="mt-3">
+          <HealthcareNeedGrid />
+        </div>
+      </section>
+
+      <section className="mt-7">
+        <h2 className="text-lg font-extrabold">Explore RuralReach</h2>
         <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {actions.map(({ to, label, icon: Icon }, i) => (
             <li key={to}>
@@ -105,10 +118,6 @@ function Home() {
         </ul>
       </section>
 
-      <p className="mt-6 text-center text-xs text-muted-foreground">
-        Demo prototype — facility information should be verified before
-        visiting.
-      </p>
     </AppShell>
   );
 }

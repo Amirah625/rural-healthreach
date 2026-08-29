@@ -13,9 +13,18 @@ import {
 } from "@/lib/health-places";
 import { useLocation } from "@/lib/location/LocationProvider";
 import { useFacilitySearch } from "@/lib/useFacilities";
+import {
+  getHealthcareNeed,
+  type HealthcareNeedId,
+} from "@/lib/healthcare-needs";
+import { HealthcareNeedGrid } from "@/components/facilities/HealthcareNeedGrid";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/find")({
+  validateSearch: (search: Record<string, unknown>): { need?: HealthcareNeedId } =>
+    getHealthcareNeed(search["need"] as string)?.id
+      ? { need: search["need"] as HealthcareNeedId }
+      : {},
   head: () => ({
     meta: [
       { title: "Find Healthcare Near You | RuralReach Health" },
@@ -64,23 +73,42 @@ function Chip({
 }
 
 function FindScreen() {
+  const { need: initialNeed } = Route.useSearch();
   const { location, status, detect } = useLocation();
   const [category, setCategory] = useState<HealthCategory>("all");
   const [input, setInput] = useState("");
   const [query, setQuery] = useState("");
+  const [need, setNeed] = useState<HealthcareNeedId | undefined>(initialNeed);
+  const [radiusMeters, setRadiusMeters] = useState(20_000);
 
   // Ask for location once on first visit if nothing is chosen yet.
   useEffect(() => {
     if (!location && status === "idle") detect();
   }, [location, status, detect]);
 
-  const results = useFacilitySearch(category, query);
+  const results = useFacilitySearch(category, query, need, radiusMeters);
   const places = results.data?.places ?? [];
   const isConfigured = results.data?.configured === true;
 
   return (
     <AppShell title="Find healthcare near you">
       <LocationBar />
+
+      <section className="mt-5">
+        <h2 className="text-lg font-extrabold">What healthcare do you need today?</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Choose a service to find nearby facilities with provider-verified information.
+        </p>
+        <div className="mt-3">
+          <HealthcareNeedGrid
+            selectedNeed={need}
+            onSelect={(selected) => {
+              setNeed(selected);
+              setRadiusMeters(20_000);
+            }}
+          />
+        </div>
+      </section>
 
       <form
         onSubmit={(e) => {
@@ -197,38 +225,60 @@ function FindScreen() {
 
           <div className="mt-2 space-y-3">
             {places.map((place, i) => (
-              <PlaceCard key={place.id} place={place} index={i} />
+              <PlaceCard
+                key={place.id}
+                place={place}
+                index={i}
+                highlightedNeed={need}
+              />
             ))}
           </div>
 
           {places.length === 0 && (
             <section className="card-surface rise mt-2 p-5 text-center">
               <h2 className="text-base font-extrabold">
-                We couldn't find healthcare facilities nearby
+                {need
+                  ? "We couldn't find a nearby facility with verified information for this service."
+                  : "We couldn't find healthcare facilities nearby"}
               </h2>
-              <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-                <li>Try a different healthcare category</li>
-                <li>Search a wider term, like “hospital”</li>
-                <li>Change your location</li>
-              </ul>
+              {!need && (
+                <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                  <li>Try a different healthcare category</li>
+                  <li>Search a wider term, like “hospital”</li>
+                  <li>Change your location</li>
+                </ul>
+              )}
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {need ? (
+                  <button
+                    type="button"
+                    onClick={() => setRadiusMeters(50_000)}
+                    className="tap rounded-2xl bg-secondary px-5 py-3.5 text-sm font-extrabold text-secondary-foreground"
+                  >
+                    Search a wider area
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCategory("all");
+                      setInput("");
+                      setQuery("");
+                    }}
+                    className="tap rounded-2xl bg-secondary px-5 py-3.5 text-sm font-extrabold text-secondary-foreground"
+                  >
+                    Clear filters
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => {
-                    setCategory("all");
-                    setInput("");
-                    setQuery("");
+                    setNeed(undefined);
+                    setRadiusMeters(20_000);
                   }}
-                  className="tap rounded-2xl bg-secondary px-5 py-3.5 text-sm font-extrabold text-secondary-foreground"
-                >
-                  Clear filters
-                </button>
-                <button
-                  type="button"
-                  onClick={detect}
                   className="tap rounded-2xl bg-primary px-5 py-3.5 text-sm font-extrabold text-primary-foreground"
                 >
-                  Use my current location
+                  View nearby healthcare facilities
                 </button>
               </div>
             </section>

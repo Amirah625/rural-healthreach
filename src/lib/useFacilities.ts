@@ -5,6 +5,7 @@ import {
   type HealthCategory,
   type HealthPlace,
 } from "@/lib/health-places";
+import type { HealthcareNeedId } from "@/lib/healthcare-needs";
 import { useLocation } from "@/lib/location/LocationProvider";
 import { searchFacilities } from "@/lib/places.functions";
 
@@ -23,7 +24,12 @@ function withDistance(
     .sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
 }
 
-export function useFacilitySearch(category: HealthCategory, query: string) {
+export function useFacilitySearch(
+  category: HealthCategory,
+  query: string,
+  need?: HealthcareNeedId,
+  radiusMeters = 20_000,
+) {
   const { location } = useLocation();
 
   return useQuery<FacilityResults>({
@@ -33,18 +39,23 @@ export function useFacilitySearch(category: HealthCategory, query: string) {
       location?.longitude,
       category,
       query.trim(),
+      need,
+      radiusMeters,
     ],
     enabled: Boolean(location),
     staleTime: 5 * 60_000,
     gcTime: 30 * 60_000,
     queryFn: async () => {
-      const loc = location!;
+      if (!location) return { places: [], configured: false };
+      const loc = location;
       const result = await searchFacilities({
         data: {
           latitude: loc.latitude,
           longitude: loc.longitude,
           category,
           ...(query.trim() ? { query: query.trim() } : {}),
+          ...(need ? { need } : {}),
+          radiusMeters,
         },
       });
       if (!result.live) return { places: [], configured: false };

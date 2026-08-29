@@ -1,19 +1,36 @@
 import { Link } from "@tanstack/react-router";
-import { Building2, ChevronRight, Clock, MapPin, Phone, Star } from "lucide-react";
+import {
+  Building2,
+  Check,
+  ChevronRight,
+  Clock,
+  MapPin,
+  Phone,
+  Star,
+} from "lucide-react";
 
 import {
   formatDistance,
   telHref,
   type HealthPlace,
 } from "@/lib/health-places";
+import {
+  healthcareNeedLabel,
+  type HealthcareNeedId,
+} from "@/lib/healthcare-needs";
 import { cn } from "@/lib/utils";
 
 interface PlaceCardProps {
   place: HealthPlace;
   index?: number;
+  highlightedNeed?: HealthcareNeedId;
 }
 
-export function PlaceCard({ place, index = 0 }: PlaceCardProps) {
+export function PlaceCard({
+  place,
+  index = 0,
+  highlightedNeed,
+}: PlaceCardProps) {
   const distance = formatDistance(place.distanceKm);
 
   return (
@@ -46,6 +63,12 @@ export function PlaceCard({ place, index = 0 }: PlaceCardProps) {
             </span>
           )}
           <span className="mt-1 flex flex-wrap items-center gap-2">
+            {highlightedNeed && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-highlight/30 px-2 py-0.5 text-xs font-bold text-highlight-foreground">
+                <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                {healthcareNeedLabel(highlightedNeed)}
+              </span>
+            )}
             {place.openNow !== undefined && (
               <span
                 className={cn(

@@ -19,6 +19,8 @@ export const searchFacilities = createServerFn({ method: "POST" })
       longitude: number;
       category: string;
       query?: string;
+      need?: string;
+      radiusMeters?: number;
     }) => input,
   )
   .handler(async ({ data }) => {
@@ -28,6 +30,8 @@ export const searchFacilities = createServerFn({ method: "POST" })
       longitude: data.longitude,
       category: data.category as never,
       ...(data.query ? { query: data.query } : {}),
+      ...(data.need ? { need: data.need as never } : {}),
+      ...(data.radiusMeters ? { radiusMeters: data.radiusMeters } : {}),
     });
     return { live: true as const, places };
   });
