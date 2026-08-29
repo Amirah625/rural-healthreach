@@ -7,8 +7,8 @@ import { AppShell } from "@/components/layout/AppShell";
 import { LocationBar } from "@/components/location/LocationBar";
 import {
   CATEGORIES,
-  DEMO_MODE_NOTE,
   MAP_DATA_NOTE,
+  NOT_CONFIGURED_NOTE,
   type HealthCategory,
 } from "@/lib/health-places";
 import { useLocation } from "@/lib/location/LocationProvider";
@@ -76,7 +76,7 @@ function FindScreen() {
 
   const results = useFacilitySearch(category, query);
   const places = results.data?.places ?? [];
-  const isLive = results.data?.live === true;
+  const isConfigured = results.data?.configured === true;
 
   return (
     <AppShell title="Find healthcare near you">
@@ -187,11 +187,11 @@ function FindScreen() {
             aria-live="polite"
           >
             <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-            {isLive ? MAP_DATA_NOTE : DEMO_MODE_NOTE}
+            {isConfigured ? MAP_DATA_NOTE : NOT_CONFIGURED_NOTE}
           </p>
 
           <p className="mt-4 text-sm font-semibold text-muted-foreground">
-            {places.length} {isLive ? "nearby" : "demo"} facilit
+            {places.length} nearby facilit
             {places.length === 1 ? "y" : "ies"} found
           </p>
 

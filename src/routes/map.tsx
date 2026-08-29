@@ -5,8 +5,8 @@ import { useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { LocationBar } from "@/components/location/LocationBar";
 import {
-  DEMO_MODE_NOTE,
   MAP_DATA_NOTE,
+  NOT_CONFIGURED_NOTE,
   directionsUrl,
   formatDistance,
   type HealthPlace,
@@ -182,7 +182,7 @@ function MapScreen() {
 
       <p className="mt-4 flex items-start gap-2 rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
         <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-        {results.data?.live ? MAP_DATA_NOTE : DEMO_MODE_NOTE}
+        {results.data?.configured ? MAP_DATA_NOTE : NOT_CONFIGURED_NOTE}
       </p>
     </AppShell>
   );
