@@ -5,12 +5,15 @@ import {
   Clock,
   ExternalLink,
   Globe,
+  ImageOff,
   Info,
+  Bookmark,
   MapPin,
   Navigation,
   Phone,
   Star,
 } from "lucide-react";
+import { useState } from "react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import {
@@ -18,6 +21,7 @@ import {
   directionsUrl,
   distanceKm,
   formatDistance,
+  hasValidPhone,
   telHref,
   type HealthPlace,
 } from "@/lib/health-places";
@@ -62,6 +66,8 @@ function FacilityDetail() {
   });
 
   const place = live.data ?? null;
+  const [imageFailed, setImageFailed] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   if (!place) {
     return (
@@ -94,7 +100,25 @@ function FacilityDetail() {
 
   return (
     <AppShell title="Facility details" backTo="/find">
-      <section className="card-surface rise p-5">
+      <section className="card-surface rise overflow-hidden">
+        <div className="aspect-[16/7] w-full bg-accent">
+          {place.photoUrl && !imageFailed ? (
+            <img
+              src={place.photoUrl}
+              alt={`${place.name} facility`}
+              width={1200}
+              height={525}
+              onError={() => setImageFailed(true)}
+              className="size-full object-cover"
+            />
+          ) : (
+            <div className="flex size-full flex-col items-center justify-center gap-2 text-primary">
+              <ImageOff className="h-9 w-9" aria-hidden="true" />
+              <span className="text-sm font-bold">Facility image unavailable</span>
+            </div>
+          )}
+        </div>
+        <div className="p-5">
         <div className="flex items-start gap-3">
           <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-accent text-primary">
             <Building2 className="h-7 w-7" aria-hidden="true" />
@@ -102,8 +126,9 @@ function FacilityDetail() {
           <div className="min-w-0">
             <h2 className="text-xl font-extrabold">{place.name}</h2>
             <p className="text-sm text-muted-foreground">{place.typeLabel}</p>
-            {place.rating !== undefined && (
-              <p className="mt-1 inline-flex items-center gap-1 text-sm font-bold">
+            <p className="mt-1 inline-flex items-center gap-1 text-sm font-bold">
+              {place.rating !== undefined ? (
+                <>
                 <Star
                   className="h-4 w-4 fill-highlight text-highlight"
                   aria-hidden="true"
@@ -115,8 +140,11 @@ function FacilityDetail() {
                     ({place.ratingCount})
                   </span>
                 ) : null}
-              </p>
-            )}
+                </>
+              ) : (
+                <span className="font-normal text-muted-foreground">Rating unavailable</span>
+              )}
+            </p>
           </div>
         </div>
 
@@ -124,10 +152,14 @@ function FacilityDetail() {
           <div className="flex items-start gap-2">
             <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-leaf" aria-hidden="true" />
             <dt className="sr-only">Address</dt>
-            <dd>{[away, place.address].filter(Boolean).join(" · ")}</dd>
+            <dd className="min-w-0">
+              <span className="block break-words">{place.address ?? "Information unavailable"}</span>
+              <span className="block text-xs text-muted-foreground">
+                {away ?? "Distance unavailable"}
+              </span>
+            </dd>
           </div>
-          {(place.openNow !== undefined || place.hoursSummary) && (
-            <div className="flex items-start gap-2">
+          <div className="flex items-start gap-2">
               <Clock className="mt-0.5 h-4 w-4 shrink-0 text-leaf" aria-hidden="true" />
               <dt className="sr-only">Opening hours</dt>
               <dd>
@@ -136,27 +168,28 @@ function FacilityDetail() {
                     {place.openNow ? "Open now" : "Closed now"}
                   </span>
                 )}
+                {place.openNow === undefined && (
+                  <span className="font-semibold">Opening status unavailable</span>
+                )}
                 {place.hoursSummary ? ` · ${place.hoursSummary}` : ""}
               </dd>
             </div>
-          )}
-          {place.website && (
-            <div className="flex items-start gap-2">
+          <div className="flex items-start gap-2">
               <Globe className="mt-0.5 h-4 w-4 shrink-0 text-leaf" aria-hidden="true" />
               <dt className="sr-only">Website</dt>
               <dd className="min-w-0">
-                <a
+                {place.website ? <a
                   href={place.website}
                   target="_blank"
                   rel="noreferrer noopener"
                   className="break-all font-semibold text-primary underline"
                 >
                   {place.website}
-                </a>
+                </a> : <span className="text-muted-foreground">Website unavailable</span>}
               </dd>
             </div>
-          )}
         </dl>
+        </div>
       </section>
 
       {place.hours && place.hours.length > 0 && (
@@ -170,18 +203,33 @@ function FacilityDetail() {
         </section>
       )}
 
+      <section className="card-surface rise mt-4 p-5">
+        <h3 className="text-base font-extrabold">Verified services</h3>
+        {place.verifiedServices?.length ? (
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {place.verifiedServices.map((service) => (
+              <li key={service} className="rounded-full bg-accent px-3 py-1.5 text-xs font-bold text-accent-foreground">
+                {service.replaceAll("_", " ")}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-2 text-sm text-muted-foreground">Service information not verified</p>
+        )}
+      </section>
+
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
-        {place.phone ? (
+        {hasValidPhone(place.phone) ? (
           <a
             href={telHref(place.phone)}
             className="tap flex items-center justify-center gap-2 rounded-2xl bg-leaf px-5 py-4 text-base font-extrabold text-leaf-foreground"
           >
             <Phone className="h-5 w-5" aria-hidden="true" />
-            Call {place.phone}
+            Call facility
           </a>
         ) : (
-          <p className="rounded-2xl bg-secondary px-5 py-4 text-center text-sm font-semibold text-secondary-foreground">
-            No phone number listed
+          <p className="flex items-center justify-center rounded-2xl bg-secondary px-5 py-4 text-center text-sm font-semibold text-secondary-foreground">
+            Phone number unavailable
           </p>
         )}
         <a
@@ -204,6 +252,16 @@ function FacilityDetail() {
         <MapPin className="h-4 w-4" aria-hidden="true" />
         Show on map
       </Link>
+
+      <button
+        type="button"
+        aria-pressed={saved}
+        onClick={() => setSaved((value) => !value)}
+        className="tap mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card px-5 py-3.5 text-sm font-extrabold text-foreground hover:bg-accent"
+      >
+        <Bookmark className="h-4 w-4" aria-hidden="true" />
+        {saved ? "Facility saved" : "Save facility"}
+      </button>
 
       <p className="mt-5 flex items-start gap-2 rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
         <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />

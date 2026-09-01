@@ -32,6 +32,8 @@ export interface HealthPlace {
   hoursSummary?: string;
   phone?: string;
   website?: string;
+  /** Provider photo proxied through the app when the provider supplies one. */
+  photoUrl?: string;
   rating?: number;
   ratingCount?: number;
   /** Services explicitly represented by the provider's place types. */
@@ -93,4 +95,8 @@ export function directionsUrl(place: HealthPlace): string {
 
 export function telHref(phone: string): string {
   return `tel:${phone.replace(/[^\d+]/g, "")}`;
+}
+
+export function hasValidPhone(phone?: string): boolean {
+  return Boolean(phone && phone.replace(/\D/g, "").length >= 6);
 }

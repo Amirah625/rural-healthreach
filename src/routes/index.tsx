@@ -4,14 +4,23 @@ import {
   ArrowRight,
   Bot,
   BookOpen,
+  Crosshair,
+  Loader2,
   MapPin,
+  Search,
   Smartphone,
   User,
 } from "lucide-react";
+import { useState } from "react";
 
 import hero from "@/assets/hero-rural-health.jpg";
+import { PlaceCard, PlaceCardSkeleton } from "@/components/facilities/PlaceCard";
 import { AppShell } from "@/components/layout/AppShell";
 import { HealthcareNeedGrid } from "@/components/facilities/HealthcareNeedGrid";
+import { LocationBar } from "@/components/location/LocationBar";
+import { useLocation } from "@/lib/location/LocationProvider";
+import { useFacilitySearch } from "@/lib/useFacilities";
+import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,6 +40,8 @@ export const Route = createFileRoute("/")({
         content:
           "Find nearby clinics, hospitals and health information in rural communities.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Home,
@@ -46,21 +57,140 @@ const actions = [
 ] as const;
 
 function Home() {
+  const navigate = useNavigate();
+  const { location, status, detect } = useLocation();
+  const [input, setInput] = useState("");
+  const nearby = useFacilitySearch("all", "");
+  const nearbyPlaces = nearby.data?.places.slice(0, 3) ?? [];
+
+  function submitSearch(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    navigate({
+      to: "/find",
+      search: input.trim() ? { query: input.trim() } : {},
+    });
+  }
+
   return (
     <AppShell>
-      <p className="rise text-center text-sm text-muted-foreground">
-        Healthcare that reaches you,
-        <br />
-        wherever you are.
-      </p>
+      <section className="rise text-center">
+        <p className="text-sm font-bold text-primary">Welcome to RuralReach</p>
+        <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">
+          Healthcare that reaches you
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">Wherever you are.</p>
+      </section>
 
-      <section className="rise mt-4 overflow-hidden rounded-3xl shadow-soft">
+      <section className="rise mt-5 rounded-3xl bg-primary p-5 text-primary-foreground shadow-lift sm:p-6">
+        <div className="max-w-2xl">
+          <p className="text-sm font-bold text-primary-foreground/80">
+            Find care near you
+          </p>
+          <h2 className="mt-1 text-2xl font-extrabold leading-tight">
+            Where do you need healthcare?
+          </h2>
+        </div>
+        <form onSubmit={submitSearch} className="mt-4" role="search">
+          <label className="sr-only" htmlFor="home-health-search">
+            Search hospitals, clinics, services or locations
+          </label>
+          <div className="flex items-center gap-2 rounded-2xl bg-card p-2 text-foreground shadow-soft focus-within:ring-2 focus-within:ring-ring">
+            <Search className="ml-2 h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <input
+              id="home-health-search"
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              placeholder="Search hospitals, clinics, services or locations…"
+              autoComplete="off"
+              className="min-w-0 flex-1 bg-transparent px-1 py-2 text-base outline-none placeholder:text-muted-foreground"
+            />
+            <button
+              type="submit"
+              className="tap min-h-11 shrink-0 rounded-xl bg-leaf px-4 text-sm font-extrabold text-leaf-foreground"
+            >
+              Search
+            </button>
+          </div>
+        </form>
+        <button
+          type="button"
+          onClick={detect}
+          disabled={status === "detecting"}
+          className="tap mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-bold text-primary-foreground hover:bg-primary-foreground/10 disabled:opacity-70"
+        >
+          {status === "detecting" ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <Crosshair className="h-4 w-4" aria-hidden="true" />
+          )}
+          {status === "detecting" ? "Finding your location…" : "Use my location"}
+        </button>
+      </section>
+
+      <div className="mt-3">
+        <LocationBar compact />
+      </div>
+
+      <section className="mt-7">
+        <h2 className="text-lg font-extrabold">What healthcare do you need today?</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Choose a service to search nearby provider information.
+        </p>
+        <div className="mt-3">
+          <HealthcareNeedGrid />
+        </div>
+      </section>
+
+      <section className="mt-7" aria-labelledby="nearby-heading">
+        <div className="flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <h2 id="nearby-heading" className="text-lg font-extrabold">
+              Nearby healthcare facilities
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {location ? "Live provider information around your location." : "Set your location to see live facilities nearby."}
+            </p>
+          </div>
+          {location && nearbyPlaces.length > 0 && (
+            <a href="/find" className="tap shrink-0 rounded-full px-3 py-2 text-sm font-extrabold text-primary hover:bg-accent">
+              View all
+            </a>
+          )}
+        </div>
+        {nearby.isPending && location && (
+          <div className="mt-3 space-y-3" aria-live="polite">
+            {[0, 1, 2].map((index) => <PlaceCardSkeleton key={index} index={index} />)}
+          </div>
+        )}
+        {nearby.isSuccess && nearbyPlaces.length > 0 && (
+          <div className="mt-3 space-y-3">
+            {nearbyPlaces.map((place, index) => <PlaceCard key={place.id} place={place} index={index} />)}
+          </div>
+        )}
+        {!location && status !== "detecting" && (
+          <button
+            type="button"
+            onClick={detect}
+            className="card-surface tap mt-3 flex w-full items-center justify-center gap-2 p-4 text-sm font-extrabold text-primary hover:shadow-lift"
+          >
+            <Crosshair className="h-5 w-5" aria-hidden="true" />
+            Use my location to find nearby care
+          </button>
+        )}
+        {nearby.isSuccess && location && nearbyPlaces.length === 0 && (
+          <p className="mt-3 rounded-2xl bg-secondary p-4 text-sm text-secondary-foreground">
+            No nearby facilities with provider information were found.
+          </p>
+        )}
+      </section>
+
+      <section className="rise mt-7 overflow-hidden rounded-3xl shadow-soft">
         <img
           src={hero}
           alt="A community health worker smiling beside a rural clinic"
           width={1200}
           height={704}
-          className="h-44 w-full object-cover sm:h-64"
+          className="block aspect-[16/8] h-auto w-full object-cover sm:aspect-[16/7]"
         />
       </section>
 
@@ -78,18 +208,6 @@ function Home() {
           Get Started
           <ArrowRight className="h-5 w-5" aria-hidden="true" />
         </Link>
-      </section>
-
-      <section className="mt-7">
-        <h2 className="text-lg font-extrabold">
-          What healthcare do you need today?
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Find nearby care by service, using verified provider information.
-        </p>
-        <div className="mt-3">
-          <HealthcareNeedGrid />
-        </div>
       </section>
 
       <section className="mt-7">
