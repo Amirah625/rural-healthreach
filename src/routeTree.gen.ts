@@ -18,6 +18,7 @@ import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as UssdRouteImport } from './routes/ussd'
+import { Route as ApiPlacePhotoRouteImport } from './routes/api/place-photo'
 import { Route as FacilityFacilityIdRouteImport } from './routes/facility.$facilityId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -65,6 +66,11 @@ const UssdRoute = UssdRouteImport.update({
   path: '/ussd',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPlacePhotoRoute = ApiPlacePhotoRouteImport.update({
+  id: '/api/place-photo',
+  path: '/api/place-photo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FacilityFacilityIdRoute = FacilityFacilityIdRouteImport.update({
   id: '/facility/$facilityId',
   path: '/facility/$facilityId',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/resources': typeof ResourcesRoute
   '/ussd': typeof UssdRoute
+  '/api/place-photo': typeof ApiPlacePhotoRoute
   '/facility/$facilityId': typeof FacilityFacilityIdRoute
 }
 export interface FileRoutesByTo {
@@ -93,6 +100,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/resources': typeof ResourcesRoute
   '/ussd': typeof UssdRoute
+  '/api/place-photo': typeof ApiPlacePhotoRoute
   '/facility/$facilityId': typeof FacilityFacilityIdRoute
 }
 export interface FileRoutesById {
@@ -106,6 +114,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/resources': typeof ResourcesRoute
   '/ussd': typeof UssdRoute
+  '/api/place-photo': typeof ApiPlacePhotoRoute
   '/facility/$facilityId': typeof FacilityFacilityIdRoute
 }
 export interface FileRouteTypes {
@@ -120,6 +129,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/resources'
     | '/ussd'
+    | '/api/place-photo'
     | '/facility/$facilityId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/resources'
     | '/ussd'
+    | '/api/place-photo'
     | '/facility/$facilityId'
   id:
     | '__root__'
@@ -144,6 +155,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/resources'
     | '/ussd'
+    | '/api/place-photo'
     | '/facility/$facilityId'
   fileRoutesById: FileRoutesById
 }
@@ -157,6 +169,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ResourcesRoute: typeof ResourcesRoute
   UssdRoute: typeof UssdRoute
+  ApiPlacePhotoRoute: typeof ApiPlacePhotoRoute
   FacilityFacilityIdRoute: typeof FacilityFacilityIdRoute
 }
 
@@ -225,6 +238,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UssdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/place-photo': {
+      id: '/api/place-photo'
+      path: '/api/place-photo'
+      fullPath: '/api/place-photo'
+      preLoaderRoute: typeof ApiPlacePhotoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/facility/$facilityId': {
       id: '/facility/$facilityId'
       path: '/facility/$facilityId'
@@ -245,6 +265,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ResourcesRoute: ResourcesRoute,
   UssdRoute: UssdRoute,
+  ApiPlacePhotoRoute: ApiPlacePhotoRoute,
   FacilityFacilityIdRoute: FacilityFacilityIdRoute,
 }
 export const routeTree = rootRouteImport

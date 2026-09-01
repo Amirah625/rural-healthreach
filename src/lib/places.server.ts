@@ -22,6 +22,7 @@ const PLACE_FIELDS = [
   "nationalPhoneNumber",
   "internationalPhoneNumber",
   "websiteUri",
+  "photos",
   "primaryTypeDisplayName",
   "types",
   "currentOpeningHours.openNow",
@@ -70,6 +71,7 @@ interface RawPlace {
   nationalPhoneNumber?: string;
   internationalPhoneNumber?: string;
   websiteUri?: string;
+  photos?: { name?: string; widthPx?: number; heightPx?: number }[];
   primaryTypeDisplayName?: { text?: string };
   types?: string[];
   currentOpeningHours?: { openNow?: boolean };
@@ -135,6 +137,10 @@ function toHealthPlace(raw: RawPlace): HealthPlace | null {
   const phone = raw.nationalPhoneNumber ?? raw.internationalPhoneNumber;
   if (phone) place.phone = phone;
   if (raw.websiteUri) place.website = raw.websiteUri;
+  const photoName = raw.photos?.[0]?.name;
+  if (photoName) {
+    place.photoUrl = `/api/place-photo?name=${encodeURIComponent(photoName)}`;
+  }
   if (typeof raw.currentOpeningHours?.openNow === "boolean")
     place.openNow = raw.currentOpeningHours.openNow;
   const hours = raw.regularOpeningHours?.weekdayDescriptions;
@@ -260,4 +266,24 @@ export function reverseGeocode(latitude: number, longitude: number) {
 
 export function forwardGeocode(address: string) {
   return geocode(new URLSearchParams({ address }));
+}
+
+export async function fetchPlacePhoto(photoName: string): Promise<Response> {
+  const creds = getCredentials();
+  if (!creds || !photoName.startsWith("places/") || photoName.includes("..")) {
+    return new Response("Photo unavailable", { status: 404 });
+  }
+
+  const response = await fetch(
+    `${GATEWAY_URL}/${photoName}/media?maxWidthPx=800`,
+    { headers: authHeaders(creds) },
+  );
+  if (!response.ok) return new Response("Photo unavailable", { status: 404 });
+
+  return new Response(response.body, {
+    headers: {
+      "Cache-Control": "public, max-age=86400",
+      "Content-Type": response.headers.get("content-type") ?? "image/jpeg",
+    },
+  });
 }

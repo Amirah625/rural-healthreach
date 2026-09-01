@@ -4,10 +4,12 @@ import {
   Check,
   ChevronRight,
   Clock,
+  ImageOff,
   MapPin,
   Phone,
   Star,
 } from "lucide-react";
+import { useState } from "react";
 
 import {
   formatDistance,
@@ -32,6 +34,7 @@ export function PlaceCard({
   highlightedNeed,
 }: PlaceCardProps) {
   const distance = formatDistance(place.distanceKm);
+  const [imageFailed, setImageFailed] = useState(false);
 
   return (
     <article
@@ -44,8 +47,27 @@ export function PlaceCard({
         aria-label={`View ${place.name}`}
         className="tap flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left"
       >
-        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-accent text-primary">
-          <Building2 className="h-7 w-7" aria-hidden="true" />
+        <span className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl bg-accent text-primary">
+          {place.photoUrl && !imageFailed ? (
+            <img
+              src={place.photoUrl}
+              alt={`${place.name} facility`}
+              loading="lazy"
+              width={64}
+              height={64}
+              onError={() => setImageFailed(true)}
+              className="size-full object-cover"
+            />
+          ) : (
+            <span className="flex flex-col items-center gap-0.5 text-primary/75">
+              {imageFailed ? (
+                <ImageOff className="h-6 w-6" aria-hidden="true" />
+              ) : (
+                <Building2 className="h-7 w-7" aria-hidden="true" />
+              )}
+              <span className="sr-only">Facility image unavailable</span>
+            </span>
+          )}
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate font-display text-base font-extrabold text-foreground">
