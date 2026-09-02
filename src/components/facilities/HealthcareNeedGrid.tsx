@@ -28,7 +28,7 @@ const icons: Record<HealthcareNeedId, LucideIcon> = {
 };
 
 interface HealthcareNeedGridProps {
-  selectedNeed?: HealthcareNeedId;
+  selectedNeed?: HealthcareNeedId | undefined;
   onSelect?: (need: HealthcareNeedId) => void;
 }
 

@@ -91,6 +91,8 @@ function FacilityDetail() {
     );
   }
 
+  const phone = place.phone;
+
   const away =
     place.distanceKm !== undefined
       ? formatDistance(place.distanceKm)
@@ -219,9 +221,9 @@ function FacilityDetail() {
       </section>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
-        {hasValidPhone(place.phone) ? (
+        {hasValidPhone(phone) ? (
           <a
-            href={telHref(place.phone)}
+            href={telHref(phone)}
             className="tap flex items-center justify-center gap-2 rounded-2xl bg-leaf px-5 py-4 text-base font-extrabold text-leaf-foreground"
           >
             <Phone className="h-5 w-5" aria-hidden="true" />

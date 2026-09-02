@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 interface PlaceCardProps {
   place: HealthPlace;
   index?: number;
-  highlightedNeed?: HealthcareNeedId;
+  highlightedNeed?: HealthcareNeedId | undefined;
 }
 
 export function PlaceCard({
