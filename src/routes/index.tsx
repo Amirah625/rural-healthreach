@@ -21,6 +21,8 @@ import { LocationBar } from "@/components/location/LocationBar";
 import { useLocation } from "@/lib/location/LocationProvider";
 import { useFacilitySearch } from "@/lib/useFacilities";
 import { useNavigate } from "@tanstack/react-router";
+import { firstNameFor } from "@/lib/auth";
+import { useAuth } from "@/lib/auth/AuthProvider";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -59,6 +61,7 @@ const actions = [
 function Home() {
   const navigate = useNavigate();
   const { location, status, detect } = useLocation();
+  const { user, profile } = useAuth();
   const [input, setInput] = useState("");
   const nearby = useFacilitySearch("all", "");
   const nearbyPlaces = nearby.data?.places.slice(0, 3) ?? [];
@@ -74,9 +77,11 @@ function Home() {
   return (
     <AppShell>
       <section className="rise text-center">
-        <p className="text-sm font-bold text-primary">Welcome to RuralReach</p>
+        <p className="text-sm font-bold text-primary">
+          {user ? `Good ${new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, ${firstNameFor(user, profile)} 👋` : "Welcome to RuralReach 👋"}
+        </p>
         <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">
-          Healthcare that reaches you
+          {user ? "How can we help you find healthcare today?" : "Healthcare that reaches you"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">Wherever you are.</p>
       </section>
