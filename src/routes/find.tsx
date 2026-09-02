@@ -21,10 +21,18 @@ import { HealthcareNeedGrid } from "@/components/facilities/HealthcareNeedGrid";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/find")({
-  validateSearch: (search: Record<string, unknown>): { need?: HealthcareNeedId } =>
-    getHealthcareNeed(search["need"] as string)?.id
-      ? { need: search["need"] as HealthcareNeedId }
-      : {},
+  validateSearch: (search: Record<string, unknown>) => {
+    const need = getHealthcareNeed(
+      typeof search["need"] === "string" ? search["need"] : undefined,
+    )?.id;
+    const query =
+      typeof search["query"] === "string" ? search["query"] : undefined;
+
+    return {
+      ...(need ? { need } : {}),
+      ...(query !== undefined ? { query } : {}),
+    };
+  },
   head: () => ({
     meta: [
       { title: "Find Healthcare Near You | RuralReach Health" },
@@ -73,11 +81,11 @@ function Chip({
 }
 
 function FindScreen() {
-  const { need: initialNeed } = Route.useSearch();
+  const { need: initialNeed, query: initialQuery } = Route.useSearch();
   const { location, status, detect } = useLocation();
   const [category, setCategory] = useState<HealthCategory>("all");
-  const [input, setInput] = useState("");
-  const [query, setQuery] = useState("");
+  const [input, setInput] = useState(initialQuery ?? "");
+  const [query, setQuery] = useState(initialQuery ?? "");
   const [need, setNeed] = useState<HealthcareNeedId | undefined>(initialNeed);
   const [radiusMeters, setRadiusMeters] = useState(20_000);
 
