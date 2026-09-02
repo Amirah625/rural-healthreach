@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { Home, Map, BookOpen, MessageSquare } from "lucide-react";
+import { Home, Map, BookOpen, MessageSquare, User } from "lucide-react";
 
 const items = [
+  { to: "/profile", label: "Profile", icon: User, exact: false },
   { to: "/", label: "Home", icon: Home, exact: true },
   { to: "/map", label: "Map", icon: Map, exact: false },
-  { to: "/resources", label: "Resources", icon: BookOpen, exact: false },
   { to: "/messages", label: "Messages", icon: MessageSquare, exact: false },
+  { to: "/resources", label: "Resources", icon: BookOpen, exact: false },
 ] as const;
 
 export function BottomNav() {

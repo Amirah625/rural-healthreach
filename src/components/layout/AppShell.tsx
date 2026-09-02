@@ -7,11 +7,12 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { cn } from "@/lib/utils";
 
 const menuLinks = [
-  { to: "/find", label: "Find Healthcare Facility" },
-  { to: "/map", label: "Map" },
-  { to: "/resources", label: "Health Information" },
-  { to: "/messages", label: "Messages" },
   { to: "/profile", label: "My Profile" },
+  { to: "/", label: "Home" },
+  { to: "/map", label: "Map" },
+  { to: "/messages", label: "Messages" },
+  { to: "/resources", label: "Health Information" },
+  { to: "/find", label: "Find Healthcare Facility" },
   { to: "/ussd", label: "USSD / SMS Access" },
   { to: "/assistant", label: "Health Assistant" },
   { to: "/emergency", label: "Emergency / Help" },
@@ -19,12 +20,14 @@ const menuLinks = [
 
 /** Primary links shown inline in the desktop header */
 const desktopLinks = [
-  { to: "/find", label: "Find care" },
-  { to: "/map", label: "Map" },
-  { to: "/assistant", label: "Health Assistant" },
-  { to: "/resources", label: "Health info" },
-  { to: "/ussd", label: "USSD / SMS" },
   { to: "/profile", label: "Profile" },
+  { to: "/", label: "Home" },
+  { to: "/map", label: "Map" },
+  { to: "/messages", label: "Messages" },
+  { to: "/resources", label: "Resources" },
+  { to: "/find", label: "Find care" },
+  { to: "/assistant", label: "Health Assistant" },
+  { to: "/ussd", label: "USSD / SMS" },
 ] as const;
 
 interface AppShellProps {
