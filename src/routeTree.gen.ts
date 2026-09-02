@@ -11,11 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssistantRouteImport } from './routes/assistant'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as EmergencyRouteImport } from './routes/emergency'
 import { Route as FindRouteImport } from './routes/find'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as UssdRouteImport } from './routes/ussd'
 import { Route as ApiPlacePhotoRouteImport } from './routes/api/place-photo'
@@ -29,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
 const AssistantRoute = AssistantRouteImport.update({
   id: '/assistant',
   path: '/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmergencyRoute = EmergencyRouteImport.update({
@@ -56,6 +63,11 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
@@ -80,11 +92,13 @@ const FacilityFacilityIdRoute = FacilityFacilityIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/assistant': typeof AssistantRoute
+  '/auth': typeof AuthRoute
   '/emergency': typeof EmergencyRoute
   '/find': typeof FindRoute
   '/map': typeof MapRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/ussd': typeof UssdRoute
   '/api/place-photo': typeof ApiPlacePhotoRoute
@@ -93,11 +107,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/assistant': typeof AssistantRoute
+  '/auth': typeof AuthRoute
   '/emergency': typeof EmergencyRoute
   '/find': typeof FindRoute
   '/map': typeof MapRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/ussd': typeof UssdRoute
   '/api/place-photo': typeof ApiPlacePhotoRoute
@@ -107,11 +123,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/assistant': typeof AssistantRoute
+  '/auth': typeof AuthRoute
   '/emergency': typeof EmergencyRoute
   '/find': typeof FindRoute
   '/map': typeof MapRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/ussd': typeof UssdRoute
   '/api/place-photo': typeof ApiPlacePhotoRoute
@@ -122,11 +140,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/assistant'
+    | '/auth'
     | '/emergency'
     | '/find'
     | '/map'
     | '/messages'
     | '/profile'
+    | '/reset-password'
     | '/resources'
     | '/ussd'
     | '/api/place-photo'
@@ -135,11 +155,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/assistant'
+    | '/auth'
     | '/emergency'
     | '/find'
     | '/map'
     | '/messages'
     | '/profile'
+    | '/reset-password'
     | '/resources'
     | '/ussd'
     | '/api/place-photo'
@@ -148,11 +170,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/assistant'
+    | '/auth'
     | '/emergency'
     | '/find'
     | '/map'
     | '/messages'
     | '/profile'
+    | '/reset-password'
     | '/resources'
     | '/ussd'
     | '/api/place-photo'
@@ -162,11 +186,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AssistantRoute: typeof AssistantRoute
+  AuthRoute: typeof AuthRoute
   EmergencyRoute: typeof EmergencyRoute
   FindRoute: typeof FindRoute
   MapRoute: typeof MapRoute
   MessagesRoute: typeof MessagesRoute
   ProfileRoute: typeof ProfileRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ResourcesRoute: typeof ResourcesRoute
   UssdRoute: typeof UssdRoute
   ApiPlacePhotoRoute: typeof ApiPlacePhotoRoute
@@ -187,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/assistant'
       fullPath: '/assistant'
       preLoaderRoute: typeof AssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/emergency': {
@@ -224,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resources': {
       id: '/resources'
       path: '/resources'
@@ -258,11 +298,13 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AssistantRoute: AssistantRoute,
+  AuthRoute: AuthRoute,
   EmergencyRoute: EmergencyRoute,
   FindRoute: FindRoute,
   MapRoute: MapRoute,
   MessagesRoute: MessagesRoute,
   ProfileRoute: ProfileRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ResourcesRoute: ResourcesRoute,
   UssdRoute: UssdRoute,
   ApiPlacePhotoRoute: ApiPlacePhotoRoute,
