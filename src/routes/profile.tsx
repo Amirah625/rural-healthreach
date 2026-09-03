@@ -109,7 +109,7 @@ function Profile() {
           <User className="h-8 w-8" aria-hidden="true" />
         </span>
         <div className="min-w-0">
-           <h2 className="truncate text-lg font-extrabold">{profile?.full_name ?? user.user_metadata?.full_name ?? "RuralReach member"}</h2>
+            <h2 className="truncate text-lg font-extrabold">{profile?.full_name ?? user.user_metadata?.["full_name"] ?? "RuralReach member"}</h2>
            <p className="flex items-center gap-1.5 text-sm text-muted-foreground"><Mail className="h-4 w-4 shrink-0" aria-hidden="true" />{user.email}</p>
            {profile?.phone && <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground"><Phone className="h-4 w-4 shrink-0" aria-hidden="true" />{profile.phone}</p>}
         </div>
