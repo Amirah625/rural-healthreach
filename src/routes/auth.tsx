@@ -160,16 +160,14 @@ function AuthScreen() {
       return;
     }
 
-    const parsed = mode === "signin"
-      ? signInSchema.safeParse({ email, password })
-      : signUpSchema.safeParse({ fullName, email, password, confirmPassword, phone });
-    if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Check the form and try again.");
-      return;
-    }
-
-    setBusy(true);
     if (mode === "signin") {
+      const parsed = signInSchema.safeParse({ email, password });
+      if (!parsed.success) {
+        setError(parsed.error.issues[0]?.message ?? "Check the form and try again.");
+        return;
+      }
+
+      setBusy(true);
       const result = await supabase.auth.signInWithPassword({ email: parsed.data.email, password: parsed.data.password });
       setBusy(false);
       if (result.error) setError(friendlyAuthError(result.error.message));
@@ -177,6 +175,13 @@ function AuthScreen() {
       return;
     }
 
+    const parsed = signUpSchema.safeParse({ fullName, email, password, confirmPassword, phone });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "Check the form and try again.");
+      return;
+    }
+
+    setBusy(true);
     const values = parsed.data;
     const result = await supabase.auth.signUp({
       email: values.email,
