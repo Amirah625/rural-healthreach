@@ -1,11 +1,21 @@
 import type { User } from "@supabase/supabase-js";
 
 import { supabase } from "@/integrations/supabase/client";
+import {
+  isLanguageCode,
+  isThemePreference,
+  type LanguageCode,
+  type ThemePreference,
+} from "@/lib/i18n";
 
 export interface UserProfile {
   user_id: string;
   full_name: string;
   phone: string | null;
+  avatar_path: string | null;
+  avatar_url: string | null;
+  preferred_language: LanguageCode;
+  theme: ThemePreference;
   created_at: string;
   updated_at: string;
 }
@@ -43,20 +53,106 @@ export async function saveProfile(
       full_name: fullName.trim(),
       phone: phone?.trim() || null,
     })
-    .select("user_id, full_name, phone, created_at, updated_at")
+    .select("user_id, full_name, phone, avatar_path, preferred_language, theme, created_at, updated_at")
     .single();
 
   if (error) throw error;
-  return data;
+  return withAvatarUrl(data);
 }
 
 export async function loadProfile(userId: string) {
   const { data, error } = await supabase
     .from("profiles")
-    .select("user_id, full_name, phone, created_at, updated_at")
+    .select("user_id, full_name, phone, avatar_path, preferred_language, theme, created_at, updated_at")
     .eq("user_id", userId)
     .maybeSingle();
 
   if (error) throw error;
-  return data;
+  return data ? withAvatarUrl(data) : null;
+}
+
+type ProfileRow = {
+  user_id: string;
+  full_name: string;
+  phone: string | null;
+  avatar_path: string | null;
+  preferred_language: string;
+  theme: string;
+  created_at: string;
+  updated_at: string;
+};
+
+async function withAvatarUrl(row: ProfileRow): Promise<UserProfile> {
+  let avatarUrl: string | null = null;
+  if (row.avatar_path) {
+    const result = await supabase.storage
+      .from("profile-avatars")
+      .createSignedUrl(row.avatar_path, 60 * 60);
+    avatarUrl = result.data?.signedUrl ?? null;
+  }
+
+  return {
+    ...row,
+    avatar_url: avatarUrl,
+    preferred_language: isLanguageCode(row.preferred_language) ? row.preferred_language : "en",
+    theme: isThemePreference(row.theme) ? row.theme : "system",
+  };
+}
+
+export async function updateProfileSettings(
+  userId: string,
+  values: { preferred_language?: LanguageCode; theme?: ThemePreference },
+) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .update(values)
+    .eq("user_id", userId)
+    .select("user_id, full_name, phone, avatar_path, preferred_language, theme, created_at, updated_at")
+    .single();
+
+  if (error) throw error;
+  return withAvatarUrl(data);
+}
+
+export async function uploadProfileAvatar(userId: string, file: File) {
+  const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const path = `${userId}/${crypto.randomUUID()}.${extension}`;
+  const { error: uploadError } = await supabase.storage
+    .from("profile-avatars")
+    .upload(path, file, { contentType: file.type, upsert: false });
+
+  if (uploadError) throw uploadError;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ avatar_path: path })
+    .eq("user_id", userId)
+    .select("user_id, full_name, phone, avatar_path, preferred_language, theme, created_at, updated_at")
+    .single();
+
+  if (error) {
+    await supabase.storage.from("profile-avatars").remove([path]);
+    throw error;
+  }
+
+  return withAvatarUrl(data);
+}
+
+export async function removeProfileAvatar(userId: string, avatarPath: string | null) {
+  if (avatarPath) {
+    const { error: removeError } = await supabase.storage
+      .from("profile-avatars")
+      .remove([avatarPath]);
+    if (removeError) throw removeError;
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ avatar_path: null })
+    .eq("user_id", userId)
+    .select("user_id, full_name, phone, avatar_path, preferred_language, theme, created_at, updated_at")
+    .single();
+
+  if (error) throw error;
+  return withAvatarUrl(data);
 }
