@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (typeof document === "undefined") return;
     const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
     document.documentElement.classList.toggle("dark", nextTheme === "dark" || (nextTheme === "system" && prefersDark));
-    document.documentElement.dataset.theme = nextTheme;
+    document.documentElement.dataset["theme"] = nextTheme;
   }, []);
 
   const updateSettings = useCallback(async (values: { preferred_language?: LanguageCode; theme?: ThemePreference }) => {
