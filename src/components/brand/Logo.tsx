@@ -1,4 +1,4 @@
-import logo from "@/assets/ruralreach-logo.jpg.asset.json";
+import logo from "@/assets/ruralreach-logo.jpg";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
@@ -20,7 +20,7 @@ export function Logo({ className, withWordmark = true, size = 40 }: LogoProps) {
         style={{ width: size, height: size }}
       >
         <img
-          src={logo.url}
+          src={logo}
           alt="RuralReach Health logo"
           width={size}
           height={size}
