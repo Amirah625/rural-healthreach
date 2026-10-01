@@ -18,7 +18,7 @@ export const Route = createFileRoute("/api/health-assistant-tts")({
             );
           }
 
-          if (text.length > 2000) {
+          if (text.length > 5000) {
             return Response.json(
               {
                 error: "The response is too long for voice playback.",
@@ -28,12 +28,13 @@ export const Route = createFileRoute("/api/health-assistant-tts")({
           }
 
           const apiKey = process.env["YARNGPT_API_KEY"];
+
           console.log(
-  "YARNGPT KEY LOADED:",
-  Boolean(apiKey),
-  "LENGTH:",
-  apiKey?.length ?? 0,
-);
+            "YARNGPT KEY LOADED:",
+            Boolean(apiKey),
+            "LENGTH:",
+            apiKey?.length ?? 0,
+          );
 
           if (!apiKey) {
             console.error("YARNGPT_API_KEY is missing.");
@@ -47,7 +48,7 @@ export const Route = createFileRoute("/api/health-assistant-tts")({
           }
 
           const yarnResponse = await fetch(
-            "https://yarngpt.ai/api/v1/tts",
+            "https://api.yarngpt.ai/api/v1/streaming/conversation",
             {
               method: "POST",
               headers: {
@@ -55,9 +56,10 @@ export const Route = createFileRoute("/api/health-assistant-tts")({
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-  text: "Hello, this is a test.",
-  voice: "Idera",
-}),
+                text,
+                voice: "umar",
+                output_format: "mp3",
+              }),
             },
           );
 
@@ -79,16 +81,30 @@ export const Route = createFileRoute("/api/health-assistant-tts")({
           }
 
           const audioBuffer = await yarnResponse.arrayBuffer();
+
           console.log(
-  "YARNGPT AUDIO SIZE:",
-  audioBuffer.byteLength,
-);
+            "YARNGPT AUDIO SIZE:",
+            audioBuffer.byteLength,
+          );
+
+          if (audioBuffer.byteLength === 0) {
+            console.error("YarnGPT returned empty audio.");
+
+            return Response.json(
+              {
+                error: "Voice generation returned empty audio.",
+              },
+              { status: 502 },
+            );
+          }
 
           return new Response(audioBuffer, {
             status: 200,
             headers: {
-              "Content-Type": "audio/mpeg",
-              "Cache-Control": "no-store",
+              "Content-Type":
+                yarnResponse.headers.get("Content-Type") ??
+                "audio/mpeg",
+              "Cache-Control": "no-cache",
             },
           });
         } catch (error) {
