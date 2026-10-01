@@ -20,6 +20,9 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as UssdRouteImport } from './routes/ussd'
+import { Route as ApiHealthAssistantRouteImport } from './routes/api/health-assistant'
+import { Route as ApiHealthAssistantTranscribeRouteImport } from './routes/api/health-assistant-transcribe'
+import { Route as ApiHealthAssistantTtsRouteImport } from './routes/api/health-assistant-tts'
 import { Route as ApiPlacePhotoRouteImport } from './routes/api/place-photo'
 import { Route as FacilityFacilityIdRouteImport } from './routes/facility.$facilityId'
 
@@ -78,6 +81,22 @@ const UssdRoute = UssdRouteImport.update({
   path: '/ussd',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiHealthAssistantRoute = ApiHealthAssistantRouteImport.update({
+  id: '/api/health-assistant',
+  path: '/api/health-assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHealthAssistantTranscribeRoute =
+  ApiHealthAssistantTranscribeRouteImport.update({
+    id: '/api/health-assistant-transcribe',
+    path: '/api/health-assistant-transcribe',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiHealthAssistantTtsRoute = ApiHealthAssistantTtsRouteImport.update({
+  id: '/api/health-assistant-tts',
+  path: '/api/health-assistant-tts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPlacePhotoRoute = ApiPlacePhotoRouteImport.update({
   id: '/api/place-photo',
   path: '/api/place-photo',
@@ -101,6 +120,9 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/ussd': typeof UssdRoute
+  '/api/health-assistant': typeof ApiHealthAssistantRoute
+  '/api/health-assistant-transcribe': typeof ApiHealthAssistantTranscribeRoute
+  '/api/health-assistant-tts': typeof ApiHealthAssistantTtsRoute
   '/api/place-photo': typeof ApiPlacePhotoRoute
   '/facility/$facilityId': typeof FacilityFacilityIdRoute
 }
@@ -116,6 +138,9 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/ussd': typeof UssdRoute
+  '/api/health-assistant': typeof ApiHealthAssistantRoute
+  '/api/health-assistant-transcribe': typeof ApiHealthAssistantTranscribeRoute
+  '/api/health-assistant-tts': typeof ApiHealthAssistantTtsRoute
   '/api/place-photo': typeof ApiPlacePhotoRoute
   '/facility/$facilityId': typeof FacilityFacilityIdRoute
 }
@@ -132,6 +157,9 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/ussd': typeof UssdRoute
+  '/api/health-assistant': typeof ApiHealthAssistantRoute
+  '/api/health-assistant-transcribe': typeof ApiHealthAssistantTranscribeRoute
+  '/api/health-assistant-tts': typeof ApiHealthAssistantTtsRoute
   '/api/place-photo': typeof ApiPlacePhotoRoute
   '/facility/$facilityId': typeof FacilityFacilityIdRoute
 }
@@ -149,6 +177,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/resources'
     | '/ussd'
+    | '/api/health-assistant'
+    | '/api/health-assistant-transcribe'
+    | '/api/health-assistant-tts'
     | '/api/place-photo'
     | '/facility/$facilityId'
   fileRoutesByTo: FileRoutesByTo
@@ -164,6 +195,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/resources'
     | '/ussd'
+    | '/api/health-assistant'
+    | '/api/health-assistant-transcribe'
+    | '/api/health-assistant-tts'
     | '/api/place-photo'
     | '/facility/$facilityId'
   id:
@@ -179,6 +213,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/resources'
     | '/ussd'
+    | '/api/health-assistant'
+    | '/api/health-assistant-transcribe'
+    | '/api/health-assistant-tts'
     | '/api/place-photo'
     | '/facility/$facilityId'
   fileRoutesById: FileRoutesById
@@ -195,6 +232,9 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ResourcesRoute: typeof ResourcesRoute
   UssdRoute: typeof UssdRoute
+  ApiHealthAssistantRoute: typeof ApiHealthAssistantRoute
+  ApiHealthAssistantTranscribeRoute: typeof ApiHealthAssistantTranscribeRoute
+  ApiHealthAssistantTtsRoute: typeof ApiHealthAssistantTtsRoute
   ApiPlacePhotoRoute: typeof ApiPlacePhotoRoute
   FacilityFacilityIdRoute: typeof FacilityFacilityIdRoute
 }
@@ -278,6 +318,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UssdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/health-assistant': {
+      id: '/api/health-assistant'
+      path: '/api/health-assistant'
+      fullPath: '/api/health-assistant'
+      preLoaderRoute: typeof ApiHealthAssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health-assistant-transcribe': {
+      id: '/api/health-assistant-transcribe'
+      path: '/api/health-assistant-transcribe'
+      fullPath: '/api/health-assistant-transcribe'
+      preLoaderRoute: typeof ApiHealthAssistantTranscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health-assistant-tts': {
+      id: '/api/health-assistant-tts'
+      path: '/api/health-assistant-tts'
+      fullPath: '/api/health-assistant-tts'
+      preLoaderRoute: typeof ApiHealthAssistantTtsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/place-photo': {
       id: '/api/place-photo'
       path: '/api/place-photo'
@@ -307,6 +368,9 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ResourcesRoute: ResourcesRoute,
   UssdRoute: UssdRoute,
+  ApiHealthAssistantRoute: ApiHealthAssistantRoute,
+  ApiHealthAssistantTranscribeRoute: ApiHealthAssistantTranscribeRoute,
+  ApiHealthAssistantTtsRoute: ApiHealthAssistantTtsRoute,
   ApiPlacePhotoRoute: ApiPlacePhotoRoute,
   FacilityFacilityIdRoute: FacilityFacilityIdRoute,
 }

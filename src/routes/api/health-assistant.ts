@@ -23,11 +23,12 @@ export const Route = createFileRoute("/api/health-assistant")({
           const apiKey = process.env["GROQ_API_KEY"];
 
           if (!apiKey) {
-            console.error("GROQ_API_KEY is missing.");
+            console.error("GROQ_API_KEY is missing from the server environment.");
 
             return Response.json(
               {
-                reply: "Health Assistant is not configured yet.",
+                reply:
+                  "Health Assistant is not configured. Add the GROQ_API_KEY deployment secret.",
                 language: "English",
                 intent: "error",
                 service: "health_assistant",
@@ -154,13 +155,16 @@ Keep responses concise and practical.
           );
 
           if (!groqResponse.ok) {
-            const errorText = await groqResponse.text();
+            console.error(`Groq request failed with status ${groqResponse.status}.`);
 
-            console.error("GROQ ERROR:", errorText);
+            const reply =
+              groqResponse.status === 401 || groqResponse.status === 403
+                ? "Groq rejected GROQ_API_KEY. Update the GROQ_API_KEY deployment secret with a valid key."
+                : "Health Assistant is temporarily unavailable. Please try again shortly.";
 
             return Response.json(
               {
-                reply: `Groq error: ${errorText}`,
+                reply,
                 language: "English",
                 intent,
                 service,
