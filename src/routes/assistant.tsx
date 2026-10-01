@@ -100,8 +100,6 @@ function Assistant() {
 
       setPlayingIndex(index);
 
-      console.log("TTS LANGUAGE:", language);
-
       const response = await fetch(
         "/api/health-assistant-tts",
         {
@@ -170,11 +168,6 @@ function Assistant() {
 
       await audio.play();
     } catch (error) {
-      console.error(
-        "TTS playback error:",
-        error,
-      );
-
       setPlayingIndex(null);
 
       if (audioUrlRef.current) {
@@ -187,7 +180,9 @@ function Assistant() {
       audioRef.current = null;
 
       alert(
-        "I couldn't play the assistant's voice response. Please try again.",
+        error instanceof Error && error.message
+          ? error.message
+          : "I couldn't play the assistant's voice response. Please try again.",
       );
     }
   };
