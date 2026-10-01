@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Fix deployed Health Assistant Groq configuration/error reporting and YarnGPT TTS job polling.
 - [ ] Add authenticated profile avatar upload, replace, remove, and navigation display.
 - [ ] Add persisted preferred language with supported translations for shared shell/profile text.
 - [ ] Add persisted light/dark/system theme handling across the app.
